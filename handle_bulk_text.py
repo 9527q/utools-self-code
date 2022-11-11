@@ -28,7 +28,7 @@ class Content:
         self.join = ""  # 输出连接符
 
     @classmethod
-    def load_input(cls, input_content) -> "Content":
+    def load_input(cls, input_content: str) -> "Content":
         """加载内容"""
         items = input_content.strip().split("\n")
         items = [i for item in items if (i := item.strip())]
@@ -150,7 +150,8 @@ class CommandWrap(Command):
 
 
 def test():
-    test_case = [  # 内容、命令、结果
+    # 测试用例：内容、命令、结果
+    test_case: list[tuple[str, str, str]] = [
         ("", "", ""),
         ("1\n2\n3", ",-n", "1,2,3,"),
         ("1,\n2,\n3,", "-，", "1\n2\n3"),
