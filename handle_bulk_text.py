@@ -148,12 +148,12 @@ class CommandWrap(Command):
 
 
 def test():
-    test_data = [  # 内容、命令、结果
+    test_case = [  # 内容、命令、结果
         ("", "", ""),
         ("1\n2\n3", ",-n", "1,2,3,"),
         ("1,\n2,\n3,", "-，", "1\n2\n3"),
     ]
-    for input_content, input_command, result in test_data:
+    for input_content, input_command, result in test_case:
         content = Content.load_input(input_content)
         cmd_manager = CommandManager.load_from_input(input_command)
         cmd_manager.handle_content(content)
