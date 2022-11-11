@@ -29,7 +29,7 @@ class Content:
 
     @classmethod
     def load_input(cls, input_content) -> "Content":
-        """根据剪切板加载内容"""
+        """加载内容"""
         items = input_content.strip().split("\n")
         items = [i for item in items if (i := item.strip())]
         return cls(items=items)
