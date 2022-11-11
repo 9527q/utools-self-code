@@ -7,6 +7,7 @@
     1. 新写命令类继承 `Command`
     2. 实现 `load_from_input_cmd` 和 `handle_content`
     3. 在 `test` 中增加测试用例
+    4. 测试通过后，将代码整体复制到 uTools 快捷命令中
 
 现有功能与对应命令
     * 逗号
