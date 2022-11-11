@@ -24,8 +24,8 @@ class Content:
     """内容"""
 
     def __init__(self, items: list[str]):
-        self.items = items
-        self.join = ""
+        self.items = items  # 元素列表
+        self.join = ""  # 输出连接符
 
     @classmethod
     def load_input(cls, input_content) -> "Content":
