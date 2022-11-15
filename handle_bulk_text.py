@@ -11,6 +11,11 @@
     4. 测试通过后，将代码整体复制到 uTools 快捷命令中
 
 现有功能与对应命令
+    * 引号
+        - 【'】【‘】【’】：添加单引号
+        - 【-'】【-‘】【-’】：删除单引号
+        - 【"】【“】【”】：添加双引号
+        - 【-"】【-“】【-”】：删除双引号
     * 逗号
         - 【,】【，】：添加逗号
         - 【-,】【-，】：删除逗号
@@ -46,6 +51,7 @@ class Content:
 
 class Command:
     """命令"""
+    ORDER = 99
 
     @classmethod
     def load_from_input_cmd(cls, input_cmd: str) -> Optional["Command"]:
@@ -82,6 +88,7 @@ class CommandManager:
         for cmd_cls in manager.cmd_cls_list:
             if cmd := cmd_cls.load_from_input_cmd(input_cmd):
                 manager.add_command(cmd)
+        manager.cmds.sort(key=lambda c: c.ORDER)
 
         return manager
 
@@ -93,6 +100,7 @@ class CommandManager:
 
 class CommandComma(Command):
     """逗号"""
+    ORDER = 2
 
     def __init__(self):
         self.is_add = True  # 添加逗号还是删除逗号
@@ -122,12 +130,12 @@ class CommandComma(Command):
     @staticmethod
     def add_comma(item: str):
         """添加逗号"""
-        return f"{item.rstrip(',')},"
+        return f"{item.rstrip(',，')},"
 
     @staticmethod
     def remove_comma(item: str):
         """去除逗号"""
-        return item.rstrip(',')
+        return item.rstrip(',，')
 
 
 class CommandWrap(Command):
@@ -150,12 +158,77 @@ class CommandWrap(Command):
             content.join = ""
 
 
+class CommandQuote(Command):
+    """引号"""
+    ORDER = 1
+
+    def __init__(self):
+        self.is_add_quote1: Optional[bool] = None  # 单引号
+        self.is_add_quote2: Optional[bool] = None  # 双引号
+
+    @classmethod
+    def load_from_input_cmd(cls, input_cmd: str) -> Optional["Command"]:
+        cmd = cls()
+        if "-'" in input_cmd or "-‘" in input_cmd or "-’" in input_cmd:
+            cmd.is_add_quote1 = False
+        elif "'" in input_cmd or "‘" in input_cmd or "’" in input_cmd:
+            cmd.is_add_quote1 = True
+        elif '-"' in input_cmd or "-“" in input_cmd or "-”" in input_cmd:
+            cmd.is_add_quote2 = False
+        elif '"' in input_cmd or "“" in input_cmd or "”" in input_cmd:
+            cmd.is_add_quote2 = True
+        else:
+            return None
+
+        return cmd
+
+    def handle_content(self, content: Content):
+        handle = self.get_handle()
+        for i, item in enumerate(content.items):
+            content.set_item(i, handle(item))
+
+    def get_handle(self) -> Callable:
+        """获取处理函数"""
+        if self.is_add_quote1 is not None:
+            if self.is_add_quote1:
+                return self.add_quote1
+            else:
+                return self.remove_quote1
+        else:
+            if self.is_add_quote2:
+                return self.add_quote2
+            else:
+                return self.remove_quote2
+
+    @staticmethod
+    def add_quote1(item: str):
+        """添加单引号"""
+        return f"""'{item.strip("'‘’")}'"""
+
+    @staticmethod
+    def remove_quote1(item: str):
+        """去除单引号"""
+        return item.strip("'‘’")
+
+    @staticmethod
+    def add_quote2(item: str):
+        """添加双引号"""
+        return f'''{item.strip('"“”')}"'''
+
+    @staticmethod
+    def remove_quote2(item: str):
+        """去除双引号"""
+        return item.strip('"“”')
+
+
 def test():
     # 测试用例：内容、命令、结果
     test_case: list[tuple[str, str, str]] = [
         ("", "", ""),
         ("1\n2\n3", ",-n", "1,2,3,"),
-        ("1,\n2,\n3,", "-，", "1\n2\n3"),
+        ("1,，\n2，,\n3,", "-，", "1\n2\n3"),
+        ("1'\n2'\n3'", "-'", "1\n2\n3"),
+        ("1\n2\n3", "'，", "'1',\n'2',\n'3',"),
     ]
     for input_content, input_command, result in test_case:
         content = Content.load_input(input_content)
@@ -170,6 +243,8 @@ def test():
             print(f"{input_command=}")
             print(f"{now_result=}")
             print(f"{result=}")
+            print(f"{cmd_manager.cmd_cls_list=}")
+            print(f"{cmd_manager.cmds=}")
 
 
 def main():
