@@ -23,7 +23,7 @@
         - 默认以换行连接多行内容
         - 【-n】【-N】：输出不换行
 """
-from typing import Callable, Type, Optional
+from typing import Callable, Optional, Type
 
 
 class Content:
@@ -51,6 +51,7 @@ class Content:
 
 class Command:
     """命令"""
+
     ORDER = 99
 
     @classmethod
@@ -73,7 +74,9 @@ class CommandManager:
     def load_local_command_cls(self):
         """加载本地的命令类"""
         for o in globals().values():
-            if isinstance(o, type) and issubclass(o, Command) and o is not Command:
+            if o is Command:
+                continue
+            if isinstance(o, type) and issubclass(o, Command):
                 self.cmd_cls_list.append(o)
 
     def add_command(self, command: Command):
@@ -100,6 +103,7 @@ class CommandManager:
 
 class CommandComma(Command):
     """逗号"""
+
     ORDER = 2
 
     def __init__(self):
@@ -135,7 +139,7 @@ class CommandComma(Command):
     @staticmethod
     def remove_comma(item: str):
         """去除逗号"""
-        return item.rstrip(',，')
+        return item.rstrip(",，")
 
 
 class CommandWrap(Command):
@@ -160,6 +164,7 @@ class CommandWrap(Command):
 
 class CommandQuote(Command):
     """引号"""
+
     ORDER = 1
 
     def __init__(self):
@@ -213,7 +218,7 @@ class CommandQuote(Command):
     @staticmethod
     def add_quote2(item: str):
         """添加双引号"""
-        return f'''{item.strip('"“”')}"'''
+        return f'''"{item.strip('"“”')}"'''
 
     @staticmethod
     def remove_quote2(item: str):
@@ -229,6 +234,7 @@ def test():
         ("1,，\n2，,\n3,", "-，", "1\n2\n3"),
         ("1'\n2'\n3'", "-'", "1\n2\n3"),
         ("1\n2\n3", "'，", "'1',\n'2',\n'3',"),
+        ("1\n2\n3", '"，', '"1",\n"2",\n"3",'),
     ]
     for input_content, input_command, result in test_case:
         content = Content.load_input(input_content)
@@ -245,6 +251,7 @@ def test():
             print(f"{result=}")
             print(f"{cmd_manager.cmd_cls_list=}")
             print(f"{cmd_manager.cmds=}")
+    print()
 
 
 def main():
