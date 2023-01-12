@@ -65,6 +65,9 @@ class FormatTitle(Format):
         for line_index, line in enumerate(origin_lines):
             if self.TITLE_RE.match(line):
                 lines.append("#" + line)
+                if previous := line_index - 1:
+                    if origin_lines[previous].strip():
+                        lines.insert(-1, "")
                 if (next_index := line_index + 1) < len(origin_lines):
                     if origin_lines[next_index].strip():
                         lines.append("")
@@ -102,11 +105,14 @@ def test():
         (
             """
 # 一级标题
+一些内容
 ## 二级标题
 ###非标题
 """,
             """
 ## 一级标题
+
+一些内容
 
 ### 二级标题
 
