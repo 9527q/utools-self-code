@@ -67,15 +67,21 @@ class FormatTitle(Format):
         origin_lines = origin_content.lines
         lines = []
 
+        # 上次操作后面加空行的行号
+        add_after_blank_line_last_index = -1
         for line_index, line in enumerate(origin_lines):
             if self.TITLE_RE.match(line):
+                # 标题行降级
                 lines.append("#" + line)
-                if previous := line_index - 1:
+                # 前面加空行
+                if (previous := line_index - 1) > add_after_blank_line_last_index:
                     if origin_lines[previous].strip():
                         lines.insert(-1, "")
+                # 后面加空行
                 if (next_index := line_index + 1) < len(origin_lines):
                     if origin_lines[next_index].strip():
                         lines.append("")
+                        add_after_blank_line_last_index = line_index
             else:
                 lines.append(line)
 
@@ -104,24 +110,61 @@ class FormatManager:
 
 
 def test():
-    # 测试用例：内容、命令、结果
+    # 测试用例：输入、输出
     test_case: list[tuple[str, str]] = [
         ("", ""),
+        ("## 二级变三级标题", "### 二级变三级标题"),
         (
             """
-# 一级标题
 一些内容
-## 二级标题
-###非标题
+# 前后换行标题
+一些内容
 """,
             """
-## 一级标题
-
 一些内容
 
-### 二级标题
+## 前后换行标题
 
-###非标题
+一些内容
+""",
+        ),
+        (
+            """
+一些内容
+
+# 前后不需要额外换行标题
+
+一些内容
+""",
+            """
+一些内容
+
+## 前后不需要额外换行标题
+
+一些内容
+""",
+        ),
+        (
+            """
+# 标题紧挨着仅换一次行1
+## 标题紧挨着仅换一次行2
+""",
+            """
+## 标题紧挨着仅换一次行1
+
+### 标题紧挨着仅换一次行2
+""",
+        ),
+        (
+            """
+# 标题中间有空行不需要动1
+
+## 标题中间有空行不需要动2
+""",
+            """
+## 标题中间有空行不需要动1
+
+### 标题中间有空行不需要动2
 """,
         ),
     ]
