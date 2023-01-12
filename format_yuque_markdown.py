@@ -5,7 +5,12 @@
 
 utools 快捷命令配置
     - 环境：python（调用的本机解释器）
-    - 特殊变量：{{ClipText}（剪切板内容）
+
+现有功能：
+
+- 格式化标题
+    - 给标题降低一级
+    - 标题前后加空行
 """
 import re
 from typing import ClassVar, Iterable
