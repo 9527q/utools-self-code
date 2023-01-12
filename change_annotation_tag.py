@@ -35,7 +35,7 @@ def convert(api_text: str) -> str:
 
 
 def test():
-    # 测试用例：内容、命令、结果
+    # 测试用例：输入、输出
     test_case: list[tuple[str, str]] = [
         ("", ""),
         (
